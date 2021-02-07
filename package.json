@@ -1,0 +1,30 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "source/server.ts",
+  "scripts": {
+    "build": "rm -rf build/ && prettier --write source/ && tsc"
+  },
+  "author": "khaldoun lakiss",
+  "license": "ISC",
+  "dependencies": {
+    "@types/multer": "^1.4.5",
+    "automapper-ts": "^1.9.0",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.1",
+    "form-data": "^3.0.0",
+    "great-circle-distance": "^1.0.2",
+    "great-circle-distance-calculator": "^1.0.1",
+    "multer": "^1.4.2",
+    "swagger-ui-express": "^4.1.6"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.0",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.11",
+    "@types/express-fileupload": "^1.1.6"
+  }
+}
