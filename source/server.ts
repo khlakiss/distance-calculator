@@ -4,6 +4,8 @@ import express from 'express';
 import logging from './config/logging';
 import config from './config/config';
 import distanceRoutes from './routes/distance';
+import cors from 'cors';
+
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('../swagger.json');
 
@@ -19,6 +21,8 @@ app.use((req, res, next) => {
     });
     next();
 });
+
+app.use(cors());
 
 /** Rules for the APIs */
 app.use((req, res, next) => {
@@ -36,7 +40,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 /** Routes */
-app.use('/distance', distanceRoutes);
+app.use('/distance', cors(), distanceRoutes);
 
 /** Swagger Configuration */
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
