@@ -40,7 +40,7 @@ const getNearByPartners = (req: Request, res: Response, next: NextFunction) => {
 
                         var distance = greatCircleDistance(coords);
                         if (distance <= range) {
-                            var company: Company = new Company(partner.organization, office.address);
+                            var company: Company = new Company(partner.organization, office.address, officeLat, officeLong);
                             if (!nearByCompanies.includes(company)) {
                                 nearByCompanies.push(company);
                             }
