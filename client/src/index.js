@@ -5,6 +5,7 @@ import reportWebVitals from './reportWebVitals';
 import MapContainer from './components/map/MapContainer';
 import { positions, Provider } from 'react-alert';
 import AlertTemplate from 'react-alert-template-basic';
+import App from './App';
 
 const options = {
     timeout: 5000,
@@ -14,7 +15,7 @@ const options = {
 ReactDOM.render(
     <React.StrictMode>
         <Provider template={AlertTemplate} {...options}>
-            <MapContainer></MapContainer>
+            <App/>
         </Provider>
     </React.StrictMode>,
     document.getElementById('root')

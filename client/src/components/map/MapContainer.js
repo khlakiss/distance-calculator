@@ -1,34 +1,40 @@
-import React from 'react';
-import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
-import { Form, Button, Container, Alert, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
+import React, { useRef } from 'react';
+import { Form, Button, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAlert } from 'react-alert';
 
 const getNearByPartnersURL = 'http://localhost:1337/distance/getNearByPartners';
 
-const containerStyle = {
-    width: '1200px',
-    height: '440px'
-};
-
-const center = {
-    lat: 51.5144636,
-    lng: -0.142571
-};
-
-const companies = {
-    text: '',
-    lat: 51.5144636,
-    lng: -0.142571
-};
-
-function MapContainer() {
+const MapContainer = () => {
+    const googleMapRef = useRef(null);
+    let googleMap = null;
     const alert = useAlert();
 
-    const { isLoaded } = useJsApiLoader({
-        id: 'google-map-script',
-        googleMapsApiKey: 'AIzaSyDww0aaleA_hEAXxHMMoU0QWrHkjMyuX4Y'
-    });
+    // create marker on google map
+    const createMarker = (markerObj) => {
+        const marker = new window.google.maps.Marker({
+            position: { lat: markerObj.lat, lng: markerObj.lng },
+            map: googleMap,
+            icon: {
+                url: markerObj.icon,
+                scaledSize: new window.google.maps.Size(50, 50)
+            },
+            title: markerObj.title
+        });
+
+        const infowindow = new window.google.maps.InfoWindow({ content: markerObj.info });
+        marker.addListener('click', () => infowindow.open(googleMap, marker));
+
+        return marker;
+    };
+
+    // initialize the google map
+    const initGoogleMap = () => {
+        return new window.google.maps.Map(googleMapRef.current, {
+            center: { lat: 51.5144636, lng: -0.142571 },
+            zoom: 100
+        });
+    };
 
     const range = React.useRef(null);
     const file = React.useRef(null);
@@ -43,16 +49,56 @@ function MapContainer() {
         fetch(getNearByPartnersURL, {
             body: bodyFormData,
             method: 'post'
-        }).then((response) => {
-            if (response.status === 200) {
-                alert.success('Success');
-            } else {
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.message === 'Success') {
+
+                    // Set Rami's markers
+                    let markerList = [
+                        {
+                            lat: 51.5144636,
+                            lng: -0.142571,
+                            icon: 'https://cdn2.iconfinder.com/data/icons/IconsLandVistaMapMarkersIconsDemo/256/MapMarker_Marker_Outside_Chartreuse.png',
+                            info: '<div><h2>Rami</h2><p>Washmen.</p></div>',
+                            title: 'Rami'
+                        }
+                    ];
+
+                    //fetch the result of the api into markers list
+                    const items = data.data;
+                    items.forEach((company) => {
+                        console.log(company);
+                        markerList.push({
+                            lat: Number(company.lat),
+                            lng: Number(company.long),
+                            info: '<div> <h2>' + company.name + '</h2> <p>' + company.address + '</p> </div>',
+                            title: company.name
+                        });
+                    });
+
+                    //initiate the map based on the data
+                    googleMap = initGoogleMap();
+                    var bounds = new window.google.maps.LatLngBounds();
+                    markerList.map((x) => {
+                        const marker = createMarker(x);
+                        bounds.extend(marker.position);
+                    });
+                    googleMap.fitBounds(bounds);
+
+                    //return success and empty the array
+                    alert.success('Success');
+                    markerList = [];
+                } else {
+                    alert.error('Something Went Wrong!');
+                }
+            })
+            .catch((err) => {
                 alert.error('Something Went Wrong!');
-            }
-        });
+            });
     }
 
-    return isLoaded ? (
+    return (
         <Form onSubmit={handleSubmit}>
             <Container>
                 <Form.Group>
@@ -68,15 +114,11 @@ function MapContainer() {
                     </Button>
                 </Form.Group>
                 <Form.Group>
-                    <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={15}>
-                        <Marker position={{ lat: 51.5144636, lng: -0.142571 }} title="asd" />
-                    </GoogleMap>
+                    <div ref={googleMapRef} style={{ width: 1110, height: 480 }} />
                 </Form.Group>
             </Container>
         </Form>
-    ) : (
-        <></>
     );
-}
+};
 
-export default React.memo(MapContainer);
+export default MapContainer;
